@@ -79,4 +79,25 @@ bookRouter.get("/:bookId", async (req, res) => {
     });
   }
 });
+
+// Update book
+bookRouter.patch("/:bookId", async ({ body, params }, res) => {
+  try {
+    const updatedBook = await Book.findByIdAndUpdate(params.bookId, body, {
+      new: true,
+    });
+    res.status(200).json({
+      success: true,
+      message: "Book updated successfully",
+      data: updatedBook,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      message: "Failed to update the book details",
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
 export default bookRouter;
