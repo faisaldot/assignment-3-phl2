@@ -39,6 +39,7 @@ const bookSchema = new Schema<IBook>(
   },
   {
     timestamps: true,
+    versionKey: false,
   }
 );
 
