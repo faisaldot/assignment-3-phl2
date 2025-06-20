@@ -61,4 +61,22 @@ bookRouter.get("/", async (req, res) => {
   }
 });
 
+// Get Book by ID
+bookRouter.get("/:bookId", async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.bookId);
+
+    res.status(200).json({
+      success: true,
+      message: "Book retrieved successfully",
+      data: book,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      message: "Failed to retrieving books",
+      success: false,
+      error: error.message,
+    });
+  }
+});
 export default bookRouter;
