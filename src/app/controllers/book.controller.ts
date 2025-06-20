@@ -100,4 +100,22 @@ bookRouter.patch("/:bookId", async ({ body, params }, res) => {
   }
 });
 
+// Delete book
+bookRouter.delete("/:bookId", async ({ params }, res) => {
+  try {
+    const deletedBook = await Book.findByIdAndDelete(params.bookId);
+    res.status(200).json({
+      success: true,
+      message: "Book deleted successfully",
+      data: deletedBook && null,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      message: "Failed to delete the book",
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
 export default bookRouter;
