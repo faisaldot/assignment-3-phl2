@@ -22,4 +22,43 @@ bookRouter.post("/", async (req, res) => {
   }
 });
 
+// Get All Books
+bookRouter.get("/", async (req, res) => {
+  try {
+    const {
+      filter,
+      sortBy = "createdAt",
+      sort = "desc",
+      limit = "10",
+    }: {
+      filter?: string;
+      sortBy?: string;
+      sort?: "desc" | "asc";
+      limit?: string;
+    } = req.query;
+
+    const filterQuery: Record<string, any> = {};
+
+    if (filter) {
+      filterQuery.genre = filter.toUpperCase();
+    }
+
+    const books = await Book.find(filterQuery)
+      .sort({ [sortBy]: sort === "asc" ? 1 : -1 })
+      .limit(Number(limit));
+
+    res.status(200).json({
+      success: true,
+      message: "Books retrieved successfully",
+      data: books,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      message: "Failed to retrieving books",
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
 export default bookRouter;
