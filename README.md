@@ -103,3 +103,5 @@ The API base URL is `/api`.
 https://assignment-3-phl2.vercel.app/
 
 ## Video Explanation Link
+
+https://dub.sh/fbopQdt
