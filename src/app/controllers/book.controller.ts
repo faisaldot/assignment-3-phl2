@@ -1,10 +1,11 @@
-import express from "express";
-import { Book, IBook } from "../models/book.model";
+import express, { Request, Response } from "express";
+import { Book } from "../models/book.model";
+import mongoose from "mongoose";
 
 const bookRouter = express.Router();
 
 // Creating Book
-bookRouter.post("/", async (req, res) => {
+bookRouter.post("/", async (req: Request, res: Response): Promise<any> => {
   try {
     const newBook = await Book.create(req.body);
 
@@ -14,6 +15,16 @@ bookRouter.post("/", async (req, res) => {
       data: newBook,
     });
   } catch (error: any) {
+    if (error instanceof mongoose.Error.ValidationError) {
+      return res.status(400).json({
+        message: "Validation failed",
+        success: false,
+        error: {
+          name: error.name,
+          errors: error.errors,
+        },
+      });
+    }
     res.status(400).json({
       message: "Validation failed",
       success: false,
@@ -23,7 +34,7 @@ bookRouter.post("/", async (req, res) => {
 });
 
 // Get All Books
-bookRouter.get("/", async (req, res) => {
+bookRouter.get("/", async (req: Request, res: Response): Promise<any> => {
   try {
     const {
       filter,
@@ -53,6 +64,16 @@ bookRouter.get("/", async (req, res) => {
       data: books,
     });
   } catch (error: any) {
+    if (error instanceof mongoose.Error.ValidationError) {
+      return res.status(400).json({
+        message: "Validation failed",
+        success: false,
+        error: {
+          name: error.name,
+          errors: error.errors,
+        },
+      });
+    }
     res.status(400).json({
       message: "Failed to retrieving books",
       success: false,
@@ -62,60 +83,99 @@ bookRouter.get("/", async (req, res) => {
 });
 
 // Get Book by ID
-bookRouter.get("/:bookId", async (req, res) => {
-  try {
-    const book = await Book.findById(req.params.bookId);
+bookRouter.get(
+  "/:bookId",
+  async (req: Request, res: Response): Promise<any> => {
+    try {
+      const book = await Book.findById(req.params.bookId);
 
-    res.status(200).json({
-      success: true,
-      message: "Book retrieved successfully",
-      data: book,
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      message: "Failed to retrieving books",
-      success: false,
-      error: error.message,
-    });
+      res.status(200).json({
+        success: true,
+        message: "Book retrieved successfully",
+        data: book,
+      });
+    } catch (error: any) {
+      if (error instanceof mongoose.Error.ValidationError) {
+        return res.status(400).json({
+          message: "Validation failed",
+          success: false,
+          error: {
+            name: error.name,
+            errors: error.errors,
+          },
+        });
+      }
+      res.status(400).json({
+        message: "Failed to retrieving books",
+        success: false,
+        error: error.message,
+      });
+    }
   }
-});
+);
 
 // Update book
-bookRouter.patch("/:bookId", async ({ body, params }, res) => {
-  try {
-    const updatedBook = await Book.findByIdAndUpdate(params.bookId, body, {
-      new: true,
-    });
-    res.status(200).json({
-      success: true,
-      message: "Book updated successfully",
-      data: updatedBook,
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      message: "Failed to update the book details",
-      success: false,
-      error: error.message,
-    });
+bookRouter.patch(
+  "/:bookId",
+  async ({ body, params }: Request, res: Response): Promise<any> => {
+    try {
+      const updatedBook = await Book.findByIdAndUpdate(params.bookId, body, {
+        new: true,
+      });
+      res.status(200).json({
+        success: true,
+        message: "Book updated successfully",
+        data: updatedBook,
+      });
+    } catch (error: any) {
+      if (error instanceof mongoose.Error.ValidationError) {
+        return res.status(400).json({
+          message: "Validation failed",
+          success: false,
+          error: {
+            name: error.name,
+            errors: error.errors,
+          },
+        });
+      }
+      res.status(400).json({
+        message: "Failed to update the book details",
+        success: false,
+        error: error.message,
+      });
+    }
   }
-});
+);
 
 // Delete book
-bookRouter.delete("/:bookId", async ({ params }, res) => {
-  try {
-    const deletedBook = await Book.findByIdAndDelete(params.bookId);
-    res.status(200).json({
-      success: true,
-      message: "Book deleted successfully",
-      data: deletedBook && null,
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      message: "Failed to delete the book",
-      success: false,
-      error: error.message,
-    });
+bookRouter.delete(
+  "/:bookId",
+  async ({ params }: Request, res: Response): Promise<any> => {
+    try {
+      const deletedBook = await Book.findByIdAndDelete(params.bookId);
+      res.status(200).json({
+        success: true,
+        message: "Book deleted successfully",
+        data: deletedBook && null,
+      });
+    } catch (error: any) {
+      if (error instanceof mongoose.Error.ValidationError) {
+        return res.status(400).json({
+          message: "Validation failed",
+          success: false,
+          error: {
+            name: error.name,
+            errors: error.errors,
+          },
+        });
+      }
+      res.status(400).json({
+        message: "Failed to delete the book",
+        success: false,
+        error: error.message,
+      });
+    }
   }
-});
+);
 
 export default bookRouter;

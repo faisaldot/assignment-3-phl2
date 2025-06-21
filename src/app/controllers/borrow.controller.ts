@@ -1,11 +1,11 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import mongoose from "mongoose";
 import { Borrow, IBorrow } from "../models/borrow.model";
 import { Book } from "../models/book.model";
 
 const borrowRouter = express.Router();
 
-borrowRouter.post("/", async (req, res) => {
+borrowRouter.post("/", async (req: Request, res: Response): Promise<any> => {
   try {
     const { book: bookId, quantity, dueDate }: IBorrow = req.body;
     const book = await Book.findById(bookId);
@@ -59,7 +59,7 @@ borrowRouter.post("/", async (req, res) => {
   }
 });
 
-borrowRouter.get("/", async (req, res) => {
+borrowRouter.get("/", async (req: Request, res: Response): Promise<any> => {
   try {
     const borrowBook = await Borrow.aggregate([
       { $group: { _id: "$book", totalQuantity: { $sum: "$quantity" } } },
@@ -87,6 +87,16 @@ borrowRouter.get("/", async (req, res) => {
       data: borrowBook,
     });
   } catch (error: any) {
+    if (error instanceof mongoose.Error.ValidationError) {
+      return res.status(400).json({
+        message: "Validation failed",
+        success: false,
+        error: {
+          name: error.name,
+          errors: error.errors,
+        },
+      });
+    }
     res.status(400).json({
       message: "Failed to retrieve borrowed books summary",
       success: false,
