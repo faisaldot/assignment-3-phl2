@@ -100,4 +100,6 @@ The API base URL is `/api`.
 
 ## 🔗 Live Deployment
 
+https://assignment-3-phl2.vercel.app/
+
 ## Video Explanation Link
