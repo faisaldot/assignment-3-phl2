@@ -1,4 +1,4 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, Document, Model } from "mongoose";
 
 export interface IBook extends Document {
   title: string;
@@ -14,6 +14,7 @@ export interface IBook extends Document {
   description?: string;
   copies: number;
   available: boolean;
+  updateAvailability(): Promise<void>;
 }
 
 const bookSchema = new Schema<IBook>(
@@ -42,5 +43,23 @@ const bookSchema = new Schema<IBook>(
     versionKey: false,
   }
 );
+
+bookSchema.pre("save", function (next) {
+  if (this.isModified("copies") && this.copies === 0) {
+    this.available = false;
+  } else if (this.isModified("copies") && this.copies > 0 && !this.available) {
+    this.available = true;
+  }
+  next();
+});
+
+bookSchema.methods.updateAvailability = async function () {
+  if (this.copies === 0) {
+    this.available = false;
+  } else {
+    this.available = true;
+  }
+  await this.save();
+};
 
 export const Book = model<IBook>("Book", bookSchema);
